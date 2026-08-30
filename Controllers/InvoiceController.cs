@@ -12,17 +12,36 @@ namespace Qaydak.Controllers
     public class InvoiceController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<InvoiceController> _logger;
 
-        public InvoiceController(AppDbContext context)
+        public InvoiceController(AppDbContext context, ILogger<InvoiceController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int page = 1)
         {
-            var invoices = await _context.Invoices
-                .Include(i => i.Customer)
+            int pageSize = 10;
+
+            var query = _context.Invoices.Include(i => i.Customer).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(i => i.InvoiceNumber.Contains(search) ||
+                                        (i.Customer != null && i.Customer.Name.Contains(search)));
+            }
+
+            int totalCount = await query.CountAsync();
+            var invoices = await query
+                .OrderByDescending(i => i.IssueDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            ViewBag.Search = search;
 
             return View(invoices);
         }
@@ -60,6 +79,7 @@ namespace Qaydak.Controllers
 
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Invoice {InvoiceNumber} created for customer {CustomerId}", invoice.InvoiceNumber, invoice.CustomerId);
             return RedirectToAction("Index");
         }
 
@@ -201,6 +221,36 @@ namespace Qaydak.Controllers
             byte[] qrBytes = qrCode.GetGraphic(10);
 
             return File(qrBytes, "image/png");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecordPayment(int id, decimal amount)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            if (amount <= 0)
+            {
+                TempData["Error"] = "المبلغ المدفوع لازم يكون أكبر من صفر";
+                return RedirectToAction("Details", new { id });
+            }
+
+            invoice.PaidAmount += amount;
+
+            if (invoice.PaidAmount >= invoice.GetTotal())
+            {
+                invoice.IsPaid = true;
+            }
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Payment of {Amount} recorded for invoice {InvoiceId}", amount, id);
+            return RedirectToAction("Details", new { id });
         }
     }
 }

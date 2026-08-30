@@ -13,6 +13,11 @@
 
 <a href="/Customer/Create" class="btn btn-primary mb-3">+ إضافة عميل جديد</a>
 
+<form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="بحث بالاسم أو الهاتف" style="max-width: 300px;" />
+    <button type="submit" class="btn btn-outline-primary">بحث</button>
+</form>
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -37,3 +42,17 @@
         }
     </tbody>
 </table>
+
+@if (ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="/Customer?page=@i&search=@ViewBag.Search">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

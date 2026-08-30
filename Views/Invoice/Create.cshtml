@@ -18,19 +18,26 @@
 
     <div class="mb-3">
         <label>العميل</label>
-        <select asp-for="CustomerId" class="form-control">
-            <option value="">-- اختر عميل --</option>
-            @foreach (var c in customers!)
-            {
-                <option value="@c.Id">@c.Name</option>
-            }
-        </select>
-        <span asp-validation-for="CustomerId" class="text-danger"></span>
+        @if (customers == null || !customers.Any())
+        {
+            <p class="text-danger">لا يوجد عملاء مسجلين بعد. <a href="/Customer/Create">اضغط هنا لإضافة عميل أولاً</a></p>
+        }
+        else
+        {
+            <select asp-for="CustomerId" class="form-control">
+                <option value="">-- اختر عميل --</option>
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        }
     </div>
 
     <div class="mb-3">
         <label>نسبة الضريبة %</label>
-        <input asp-for="VatRate" class="form-control" value="15" />
+        <input asp-for="VatRate" class="form-control" />
         <span asp-validation-for="VatRate" class="text-danger"></span>
     </div>
 

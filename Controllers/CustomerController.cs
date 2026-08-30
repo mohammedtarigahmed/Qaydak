@@ -16,9 +16,28 @@ namespace Qaydak.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int page = 1)
         {
-            var customers = await _context.Customers.ToListAsync();
+            int pageSize = 10;
+
+            var query = _context.Customers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(c => c.Name.Contains(search) || (c.PhoneNumber != null && c.PhoneNumber.Contains(search)));
+            }
+
+            int totalCount = await query.CountAsync();
+            var customers = await query
+                .OrderBy(c => c.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            ViewBag.Search = search;
+
             return View(customers);
         }
 
@@ -63,8 +82,17 @@ namespace Qaydak.Controllers
                 return View(customer);
             }
 
-            _context.Customers.Update(customer);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Customers.Update(customer);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                ModelState.AddModelError("", "تم تعديل هذا العميل من مكان آخر في نفس الوقت. حدّث الصفحة وحاول تاني.");
+                return View(customer);
+            }
+
             return RedirectToAction("Index");
         }
 

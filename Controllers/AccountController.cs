@@ -1,17 +1,17 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Qaydak.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IConfiguration _config;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public AccountController(IConfiguration config)
+        public AccountController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
         {
-            _config = config;
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         // GET: /Account/Login
@@ -24,26 +24,22 @@ namespace Qaydak.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            var validUsername = _config["AdminCredentials:Username"];
-            var validPassword = _config["AdminCredentials:Password"];
+            var result = await _signInManager.PasswordSignInAsync(username, password, isPersistent: false, lockoutOnFailure: true);
 
-            // مبدئيًا: يوزر وباسورد ثابتين، هنطورهم لاحقًا لو حبيت
-            if (username == validUsername && password == validPassword)
+            if (result.Succeeded)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, username)
-                };
-
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
                 return RedirectToAction("Index", "Invoice");
             }
 
-            ViewBag.Error = "اسم المستخدم أو كلمة المرور غلط";
+            if (result.IsLockedOut)
+            {
+                ViewBag.Error = "الحساب مقفول مؤقتًا بسبب محاولات دخول فاشلة متكررة، حاول لاحقًا";
+            }
+            else
+            {
+                ViewBag.Error = "اسم المستخدم أو كلمة المرور غلط";
+            }
+
             return View();
         }
 
@@ -51,8 +47,9 @@ namespace Qaydak.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
+
     }
 }
