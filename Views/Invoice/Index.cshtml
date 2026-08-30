@@ -1,0 +1,35 @@
+@model List<Qaydak.Models.Invoice>
+
+@{
+    ViewData["Title"] = "الفواتير";
+}
+
+<h2>قائمة الفواتير</h2>
+
+<a href="/Invoice/Create" class="btn btn-primary mb-3">+ فاتورة جديدة</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>العميل</th>
+            <th>التاريخ</th>
+            <th>الحالة</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.Customer?.Name</td>
+                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                <td>@(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")</td>
+                <td>
+                    <a href="/Invoice/Details/@invoice.Id">تفاصيل</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

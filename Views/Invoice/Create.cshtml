@@ -1,0 +1,43 @@
+@model Qaydak.Models.InvoiceCreateViewModel
+
+@{
+    ViewData["Title"] = "فاتورة جديدة";
+    var customers = ViewBag.Customers as List<Qaydak.Models.Customer>;
+}
+
+<h2>فاتورة جديدة</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label>رقم الفاتورة</label>
+        <input asp-for="InvoiceNumber" class="form-control" />
+        <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>العميل</label>
+        <select asp-for="CustomerId" class="form-control">
+            <option value="">-- اختر عميل --</option>
+            @foreach (var c in customers!)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CustomerId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>نسبة الضريبة %</label>
+        <input asp-for="VatRate" class="form-control" value="15" />
+        <span asp-validation-for="VatRate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">حفظ الفاتورة</button>
+    <a href="/Invoice" class="btn btn-secondary">إلغاء</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

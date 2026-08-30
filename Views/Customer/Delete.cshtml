@@ -1,0 +1,26 @@
+@model Qaydak.Models.Customer
+
+@{
+    ViewData["Title"] = "حذف العميل";
+}
+
+<h2>تأكيد حذف العميل</h2>
+
+<p>متأكد عايز تحذف العميل ده؟</p>
+
+<dl class="row">
+    <dt class="col-sm-2">الاسم</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+
+    <dt class="col-sm-2">رقم الهاتف</dt>
+    <dd class="col-sm-10">@Model.PhoneNumber</dd>
+
+    <dt class="col-sm-2">العنوان</dt>
+    <dd class="col-sm-10">@Model.Address</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">نعم، احذف</button>
+    <a href="/Customer" class="btn btn-secondary">إلغاء</a>
+</form>
