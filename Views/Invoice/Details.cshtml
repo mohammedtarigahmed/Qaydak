@@ -2,9 +2,9 @@
 
 @{
     ViewData["Title"] = "تفاصيل الفاتورة";
-    decimal subtotal = Model.Items.Sum(i => i.Quantity * i.UnitPrice);
-    decimal vatAmount = subtotal * (Model.VatRate / 100);
-    decimal total = subtotal + vatAmount;
+    decimal subtotal = Model.GetSubtotal();
+    decimal vatAmount = Model.GetVatAmount();
+    decimal total = Model.GetTotal();
     var newItem = ViewBag.NewItem as Qaydak.Models.InvoiceItem;
 }
 

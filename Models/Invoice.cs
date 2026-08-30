@@ -28,5 +28,9 @@ namespace Qaydak.Models
         public bool IsPaid { get; set; } = false;
 
         public List<InvoiceItem> Items { get; set; } = new();
+
+        public decimal GetSubtotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
+        public decimal GetVatAmount() => GetSubtotal() * (VatRate / 100);
+        public decimal GetTotal() => GetSubtotal() + GetVatAmount();
     }
 }

@@ -42,13 +42,20 @@ namespace Qaydak.Controllers
                 return View(vm);
             }
 
+            bool numberExists = await _context.Invoices.AnyAsync(i => i.InvoiceNumber == vm.InvoiceNumber);
+            if (numberExists)
+            {
+                ModelState.AddModelError(nameof(vm.InvoiceNumber), "رقم الفاتورة ده مستخدم بالفعل");
+                ViewBag.Customers = await _context.Customers.ToListAsync();
+                return View(vm);
+            }
+
             var invoice = new Invoice
             {
                 InvoiceNumber = vm.InvoiceNumber,
                 CustomerId = vm.CustomerId,
                 VatRate = vm.VatRate,
                 IssueDate = DateTime.Now
-                // IsPaid و PaidAmount بياخدوا القيم الافتراضية من الموديل، ومحدش يقدر يتحكم فيهم من الفورم
             };
 
             _context.Invoices.Add(invoice);
@@ -107,9 +114,9 @@ namespace Qaydak.Controllers
                 return NotFound();
             }
 
-            decimal subtotal = invoice.Items.Sum(i => i.Quantity * i.UnitPrice);
-            decimal vatAmount = subtotal * (invoice.VatRate / 100);
-            decimal total = subtotal + vatAmount;
+            decimal subtotal = invoice.GetSubtotal();
+            decimal vatAmount = invoice.GetVatAmount();
+            decimal total = invoice.GetTotal();
 
             var document = QuestPDF.Fluent.Document.Create(container =>
             {
@@ -176,9 +183,9 @@ namespace Qaydak.Controllers
                 return NotFound();
             }
 
-            decimal subtotal = invoice.Items.Sum(i => i.Quantity * i.UnitPrice);
-            decimal vatAmount = subtotal * (invoice.VatRate / 100);
-            decimal total = subtotal + vatAmount;
+            decimal subtotal = invoice.GetSubtotal();
+            decimal vatAmount = invoice.GetVatAmount();
+            decimal total = invoice.GetTotal();
 
             string base64Tlv = ZatcaQrHelper.GenerateBase64Tlv(
                 sellerName: "قيدك - نشاط تجريبي",
