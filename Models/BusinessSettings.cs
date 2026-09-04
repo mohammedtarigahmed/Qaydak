@@ -11,7 +11,7 @@ namespace Qaydak.Models
         public string BusinessName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "الرقم الضريبي مطلوب")]
-        [StringLength(15, MinimumLength = 15, ErrorMessage = "الرقم الضريبي لازم يكون 15 رقم")]
+        [RegularExpression(@"^3\d{13}3$", ErrorMessage = "الرقم الضريبي لازم يكون 15 رقم، يبدأ وينتهي بالرقم 3")]
         public string VatNumber { get; set; } = string.Empty;
     }
 }

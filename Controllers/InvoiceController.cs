@@ -302,6 +302,13 @@ namespace Qaydak.Controllers
                 return RedirectToAction("Details", new { id });
             }
 
+            decimal remaining = invoice.GetTotal() - invoice.PaidAmount;
+            if (amount > remaining)
+            {
+                TempData["Error"] = $"المبلغ أكبر من المتبقي على الفاتورة ({remaining:F2})";
+                return RedirectToAction("Details", new { id });
+            }
+
             invoice.PaidAmount += amount;
 
             if (invoice.PaidAmount >= invoice.GetTotal())
@@ -351,18 +358,7 @@ namespace Qaydak.Controllers
             decimal vatAmount = invoice.GetVatAmount();
             decimal total = invoice.GetTotal();
 
-            string base64Tlv = ZatcaQrHelper.GenerateBase64Tlv(
-                sellerName: settings?.BusinessName ?? "غير محدد",
-                vatNumber: settings?.VatNumber ?? "000000000000000",
-                timestamp: invoice.IssueDate,
-                invoiceTotal: total,
-                vatAmount: vatAmount
-            );
-
-            using var qrGenerator = new QRCodeGenerator();
-            using var qrData = qrGenerator.CreateQrCode(base64Tlv, QRCodeGenerator.ECCLevel.Q);
-            using var qrCodeImage = new PngByteQRCode(qrData);
-            byte[] qrBytes = qrCodeImage.GetGraphic(10);
+            byte[] qrBytes = await GenerateQrBytes(invoice);
 
             var document = QuestPDF.Fluent.Document.Create(container =>
             {
@@ -476,17 +472,8 @@ namespace Qaydak.Controllers
             return File(pdfBytes, "application/pdf");
         }
 
-        public async Task<IActionResult> QrCode(int id)
+        private async Task<byte[]> GenerateQrBytes(Invoice invoice)
         {
-            var invoice = await _context.Invoices
-                .Include(i => i.Items)
-                .FirstOrDefaultAsync(i => i.Id == id);
-
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-
             var settings = await _context.BusinessSettings.FirstOrDefaultAsync();
 
             decimal vatAmount = invoice.GetVatAmount();
@@ -502,9 +489,22 @@ namespace Qaydak.Controllers
 
             using var qrGenerator = new QRCodeGenerator();
             using var qrData = qrGenerator.CreateQrCode(base64Tlv, QRCodeGenerator.ECCLevel.Q);
-            using var qrCode = new PngByteQRCode(qrData);
-            byte[] qrBytes = qrCode.GetGraphic(10);
+            using var qrCodeImage = new PngByteQRCode(qrData);
+            return qrCodeImage.GetGraphic(10);
+        }
 
+        public async Task<IActionResult> QrCode(int id)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            byte[] qrBytes = await GenerateQrBytes(invoice);
             return File(qrBytes, "image/png");
         }
 
