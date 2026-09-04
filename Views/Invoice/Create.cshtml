@@ -1,4 +1,4 @@
-@model Qaydak.Models.InvoiceCreateViewModel
+@model Qaydak.Models.InvoiceWithItemsViewModel
 
 @{
     ViewData["Title"] = "فاتورة جديدة";
@@ -7,14 +7,8 @@
 
 <h2>فاتورة جديدة</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" id="invoiceForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <div class="mb-3">
-        <label>رقم الفاتورة</label>
-        <input asp-for="InvoiceNumber" class="form-control" />
-        <span asp-validation-for="InvoiceNumber" class="text-danger"></span>
-    </div>
 
     <div class="mb-3">
         <label>العميل</label>
@@ -41,10 +35,64 @@
         <span asp-validation-for="VatRate" class="text-danger"></span>
     </div>
 
+    <hr />
+    <h4>البنود</h4>
+
+    <div id="itemsContainer">
+        <div class="item-row row mb-2">
+            <div class="col-md-6">
+                <input name="Items[0].Description" class="form-control" placeholder="الوصف" />
+            </div>
+            <div class="col-md-2">
+                <input name="Items[0].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية" value="1" />
+            </div>
+            <div class="col-md-3">
+                <input name="Items[0].UnitPrice" type="number" step="0.01" class="form-control" placeholder="السعر" />
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger btn-sm remove-item">×</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="addItemBtn" class="btn btn-outline-primary btn-sm mb-3">+ إضافة بند</button>
+
+    <hr />
     <button type="submit" class="btn btn-success">حفظ الفاتورة</button>
     <a href="/Invoice" class="btn btn-secondary">إلغاء</a>
 </form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let itemIndex = 1;
+
+        document.getElementById('addItemBtn').addEventListener('click', function () {
+            const container = document.getElementById('itemsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row row mb-2';
+            newRow.innerHTML = `
+                <div class="col-md-6">
+                    <input name="Items[${itemIndex}].Description" class="form-control" placeholder="الوصف" />
+                </div>
+                <div class="col-md-2">
+                    <input name="Items[${itemIndex}].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية" value="1" />
+                </div>
+                <div class="col-md-3">
+                    <input name="Items[${itemIndex}].UnitPrice" type="number" step="0.01" class="form-control" placeholder="السعر" />
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger btn-sm remove-item">×</button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            itemIndex++;
+        });
+
+        document.getElementById('itemsContainer').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-item')) {
+                e.target.closest('.item-row').remove();
+            }
+        });
+    </script>
 }

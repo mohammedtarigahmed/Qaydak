@@ -26,11 +26,12 @@ namespace Qaydak.Models
         public decimal PaidAmount { get; set; } = 0;
 
         public bool IsPaid { get; set; } = false;
-
-        public List<InvoiceItem> Items { get; set; } = new();
+        public bool IsVoided { get; set; } = false;
 
         [Timestamp]
         public byte[]? RowVersion { get; set; }
+
+        public List<InvoiceItem> Items { get; set; } = new();
 
         public decimal GetSubtotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
         public decimal GetVatAmount() => GetSubtotal() * (VatRate / 100);

@@ -9,7 +9,19 @@
 }
 
 <h2>فاتورة رقم: @Model.InvoiceNumber</h2>
+
 <a href="/Invoice" class="btn btn-outline-secondary mb-3">← رجوع لقائمة الفواتير</a>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model.IsVoided)
+{
+    <div class="alert alert-warning">هذه الفاتورة ملغاة ولا يمكن التعديل عليها</div>
+}
+
 <p>العميل: @Model.Customer?.Name</p>
 <p>التاريخ: @Model.IssueDate.ToString("yyyy-MM-dd")</p>
 
@@ -17,40 +29,26 @@
     <img src="/Invoice/QrCode/@Model.Id" alt="QR Code" style="width: 150px;" />
 </div>
 
-<a href="/Invoice/DownloadPdf/@Model.Id" class="btn btn-outline-primary mb-3">تحميل PDF</a>
+<a href="/Invoice/DownloadPdf/@Model.Id" target="_blank" class="btn btn-outline-primary mb-3">عرض / تحميل PDF</a>
 
-<h4>البنود</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>الوصف</th>
-            <th>الكمية</th>
-            <th>سعر الوحدة</th>
-            <th>الإجمالي</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Items)
-        {
-            <tr>
-                <td>@item.Description</td>
-                <td>@item.Quantity</td>
-                <td>@item.UnitPrice</td>
-                <td>@(item.Quantity * item.UnitPrice)</td>
-            </tr>
-        }
-    </tbody>
-</table>
+@if (!Model.IsVoided)
+{
+    <form asp-action="Void" method="post" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-outline-danger mb-3" onclick="return confirm('متأكد عايز تلغي الفاتورة دي؟ لا يمكن التراجع عن هذا الإجراء')">إلغاء الفاتورة</button>
+    </form>
+}
 
-<p><strong>المجموع الفرعي:</strong> @subtotal</p>
-<p><strong>الضريبة (@Model.VatRate%):</strong> @vatAmount</p>
-<p><strong>الإجمالي:</strong> @total</p>
+@if (!Model.IsVoided && Model.PaidAmount == 0)
+{
+    <a href="/Invoice/Edit/@Model.Id" class="btn btn-outline-primary mb-3">تعديل بيانات الفاتورة</a>
+}
 
 <div class="mb-3">
-    <strong>حالة الدفع:</strong> @(Model.IsPaid ? "مدفوعة بالكامل ✅" : $"غير مكتملة (مدفوع {Model.PaidAmount} من {Model.GetTotal()})")
+    <strong>حالة الدفع:</strong> @(Model.IsPaid ? "مدفوعة بالكامل ✅" : $"غير مكتملة (مدفوع {Model.PaidAmount.ToString("F2")} من {total.ToString("F2")})")
 </div>
 
-@if (!Model.IsPaid)
+@if (!Model.IsPaid && !Model.IsVoided)
 {
     <form asp-action="RecordPayment" method="post" class="mb-4">
         <input type="hidden" name="id" value="@Model.Id" />
@@ -62,32 +60,77 @@
     </form>
 }
 
-<hr />
+<h4>البنود</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>الوصف</th>
+            <th>الكمية</th>
+            <th>سعر الوحدة</th>
+            <th>الإجمالي</th>
+            @if (!Model.IsVoided)
+            {
+                <th></th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Description</td>
+                <td>@item.Quantity.ToString("0.##")</td>
+                <td>@item.UnitPrice.ToString("0.##")</td>
+                <td>@((item.Quantity * item.UnitPrice).ToString("0.##"))</td>
+                @if (!Model.IsVoided)
+                {
+                    <td>
+                        <a href="/Invoice/EditItem/@item.Id">تعديل</a>
+                        <form asp-action="DeleteItem" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="invoiceId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0" onclick="return confirm('متأكد عايز تحذف البند ده؟')">حذف</button>
+                        </form>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
 
-<h4>إضافة بند جديد</h4>
-<form asp-action="AddItem" method="post">
-    <input type="hidden" name="InvoiceId" value="@Model.Id" />
+<p><strong>المجموع الفرعي:</strong> @subtotal.ToString("F2")</p>
+<p><strong>الضريبة (@Model.VatRate%):</strong> @vatAmount.ToString("F2")</p>
+<p><strong>الإجمالي:</strong> @total.ToString("F2")</p>
 
-    <div class="mb-3">
-        <label>الوصف</label>
-        <input name="Description" class="form-control" value="@newItem?.Description" />
-        <span class="text-danger">@Html.ValidationMessage("Description")</span>
-    </div>
+@if (!Model.IsVoided)
+{
+    <hr />
 
-    <div class="mb-3">
-        <label>الكمية</label>
-        <input name="Quantity" type="number" step="0.01" class="form-control" value="@(newItem?.Quantity ?? 1)" />
-        <span class="text-danger">@Html.ValidationMessage("Quantity")</span>
-    </div>
+    <h4>إضافة بند جديد</h4>
+    <form asp-action="AddItem" method="post">
+        <input type="hidden" name="InvoiceId" value="@Model.Id" />
 
-    <div class="mb-3">
-        <label>سعر الوحدة</label>
-        <input name="UnitPrice" type="number" step="0.01" class="form-control" value="@newItem?.UnitPrice" />
-        <span class="text-danger">@Html.ValidationMessage("UnitPrice")</span>
-    </div>
+        <div class="mb-3">
+            <label>الوصف</label>
+            <input name="Description" class="form-control" value="@newItem?.Description" />
+            <span class="text-danger">@Html.ValidationMessage("Description")</span>
+        </div>
 
-    <button type="submit" class="btn btn-success">إضافة البند</button>
-</form>
+        <div class="mb-3">
+            <label>الكمية</label>
+            <input name="Quantity" type="number" step="0.01" class="form-control" value="@(newItem?.Quantity ?? 1)" />
+            <span class="text-danger">@Html.ValidationMessage("Quantity")</span>
+        </div>
+
+        <div class="mb-3">
+            <label>سعر الوحدة</label>
+            <input name="UnitPrice" type="number" step="0.01" class="form-control" value="@newItem?.UnitPrice" />
+            <span class="text-danger">@Html.ValidationMessage("UnitPrice")</span>
+        </div>
+
+        <button type="submit" class="btn btn-success">إضافة البند</button>
+    </form>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

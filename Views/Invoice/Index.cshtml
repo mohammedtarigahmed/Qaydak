@@ -8,47 +8,46 @@
 
 <a href="/Invoice/Create" class="btn btn-primary mb-3">+ فاتورة جديدة</a>
 
-<form method="get" class="mb-3 d-flex gap-2">
-    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="بحث برقم الفاتورة أو اسم العميل" style="max-width: 300px;" />
-    <button type="submit" class="btn btn-outline-primary">بحث</button>
-</form>
+<div class="mb-3">
+    <input type="text" id="searchBox" class="form-control" placeholder="بحث برقم الفاتورة أو اسم العميل" style="max-width: 300px;" value="@ViewBag.Search" />
+</div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>رقم الفاتورة</th>
-            <th>العميل</th>
-            <th>التاريخ</th>
-            <th>الحالة</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.InvoiceNumber</td>
-                <td>@invoice.Customer?.Name</td>
-                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                <td>@(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")</td>
-                <td>
-                    <a href="/Invoice/Details/@invoice.Id">تفاصيل</a>
-                </td>
-            </tr>
+<div id="resultsContainer">
+    @await Html.PartialAsync("_InvoiceTablePartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const resultsContainer = document.getElementById('resultsContainer');
+        let debounceTimer;
+
+        function loadResults(search, page = 1) {
+            fetch(`/Invoice/SearchPartial?search=${encodeURIComponent(search)}&page=${page}`)
+                .then(response => response.text())
+                .then(html => {
+                    resultsContainer.innerHTML = html;
+                    attachPageLinks();
+                });
         }
-    </tbody>
-</table>
 
-@if (ViewBag.TotalPages > 1)
-{
-    <nav>
-        <ul class="pagination">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                    <a class="page-link" href="/Invoice?page=@i&search=@ViewBag.Search">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
+        function attachPageLinks() {
+            document.querySelectorAll('.search-page-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadResults(searchBox.value, page);
+                });
+            });
+        }
+
+        searchBox.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                loadResults(searchBox.value);
+            }, 300);
+        });
+
+        attachPageLinks();
+    </script>
 }

@@ -13,46 +13,46 @@
 
 <a href="/Customer/Create" class="btn btn-primary mb-3">+ إضافة عميل جديد</a>
 
-<form method="get" class="mb-3 d-flex gap-2">
-    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="بحث بالاسم أو الهاتف" style="max-width: 300px;" />
-    <button type="submit" class="btn btn-outline-primary">بحث</button>
-</form>
+<div class="mb-3">
+    <input type="text" id="searchBox" class="form-control" placeholder="بحث بالاسم أو الهاتف" style="max-width: 300px;" value="@ViewBag.Search" />
+</div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>الاسم</th>
-            <th>رقم الهاتف</th>
-            <th>العنوان</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var customer in Model)
-        {
-            <tr>
-                <td>@customer.Name</td>
-                <td>@customer.PhoneNumber</td>
-                <td>@customer.Address</td>
-                <td>
-                    <a href="/Customer/Edit/@customer.Id">تعديل</a> |
-                    <a href="/Customer/Delete/@customer.Id">حذف</a>
-                </td>
-            </tr>
+<div id="resultsContainer">
+    @await Html.PartialAsync("_CustomerTablePartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const resultsContainer = document.getElementById('resultsContainer');
+        let debounceTimer;
+
+        function loadResults(search, page = 1) {
+            fetch(`/Customer/SearchPartial?search=${encodeURIComponent(search)}&page=${page}`)
+                .then(response => response.text())
+                .then(html => {
+                    resultsContainer.innerHTML = html;
+                    attachPageLinks();
+                });
         }
-    </tbody>
-</table>
 
-@if (ViewBag.TotalPages > 1)
-{
-    <nav>
-        <ul class="pagination">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                    <a class="page-link" href="/Customer?page=@i&search=@ViewBag.Search">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
+        function attachPageLinks() {
+            document.querySelectorAll('.search-page-link').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadResults(searchBox.value, page);
+                });
+            });
+        }
+
+        searchBox.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                loadResults(searchBox.value);
+            }, 300);
+        });
+
+        attachPageLinks();
+    </script>
 }

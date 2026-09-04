@@ -1,0 +1,40 @@
+@model List<Qaydak.Models.Customer>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>الاسم</th>
+            <th>رقم الهاتف</th>
+            <th>العنوان</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Name</td>
+                <td>@customer.PhoneNumber</td>
+                <td>@customer.Address</td>
+                <td>
+                    <a href="/Customer/Edit/@customer.Id">تعديل</a> |
+                    <a href="/Customer/Delete/@customer.Id">حذف</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link search-page-link" href="#" data-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

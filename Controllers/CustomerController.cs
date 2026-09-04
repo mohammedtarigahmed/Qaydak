@@ -124,5 +124,30 @@ namespace Qaydak.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public async Task<IActionResult> SearchPartial(string? search, int page = 1)
+        {
+            int pageSize = 10;
+
+            var query = _context.Customers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(c => c.Name.Contains(search) || (c.PhoneNumber != null && c.PhoneNumber.Contains(search)));
+            }
+
+            int totalCount = await query.CountAsync();
+            var customers = await query
+                .OrderBy(c => c.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            ViewBag.Search = search;
+
+            return PartialView("_CustomerTablePartial", customers);
+        }
     }
 }

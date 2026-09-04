@@ -12,8 +12,8 @@ using Qaydak.Data;
 namespace Qaydak.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260830163853_AddConcurrencyTokens")]
-    partial class AddConcurrencyTokens
+    [Migration("20260831175921_InitialCreateWithSequence")]
+    partial class InitialCreateWithSequence
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,8 @@ namespace Qaydak.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.HasSequence<int>("InvoiceNumberSequence");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
