@@ -20,7 +20,7 @@ namespace Qaydak.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? search, int page = 1)
+        public async Task<IActionResult> Index(string? search, string? status, int page = 1)
         {
             int pageSize = 10;
 
@@ -29,7 +29,20 @@ namespace Qaydak.Controllers
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(i => i.InvoiceNumber.Contains(search) ||
-                                          (i.Customer != null && i.Customer.Name.Contains(search)));
+                                        (i.Customer != null && i.Customer.Name.Contains(search)));
+            }
+
+            if (status == "paid")
+            {
+                query = query.Where(i => i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "unpaid")
+            {
+                query = query.Where(i => !i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "voided")
+            {
+                query = query.Where(i => i.IsVoided);
             }
 
             int totalCount = await query.CountAsync();
@@ -42,6 +55,7 @@ namespace Qaydak.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             ViewBag.Search = search;
+            ViewBag.Status = status;
 
             return View(invoices);
         }
@@ -49,6 +63,7 @@ namespace Qaydak.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Customers = await _context.Customers.ToListAsync();
+            ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
             return View(new InvoiceWithItemsViewModel { Items = new List<InvoiceItemViewModel> { new() } });
         }
 
@@ -63,6 +78,7 @@ namespace Qaydak.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Customers = await _context.Customers.ToListAsync();
+                ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
                 return View(vm);
             }
 
@@ -175,6 +191,8 @@ namespace Qaydak.Controllers
                 return NotFound();
             }
 
+            ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
+
             return View(invoice);
         }
 
@@ -206,6 +224,7 @@ namespace Qaydak.Controllers
                 }
 
                 ViewBag.NewItem = item;
+                ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
                 return View("Details", invoice);
             }
 
@@ -517,7 +536,7 @@ namespace Qaydak.Controllers
             return $"INV-{results[0]:D5}";
         }
 
-        public async Task<IActionResult> SearchPartial(string? search, int page = 1)
+        public async Task<IActionResult> SearchPartial(string? search, string? status, int page = 1)
         {
             int pageSize = 10;
 
@@ -527,6 +546,19 @@ namespace Qaydak.Controllers
             {
                 query = query.Where(i => i.InvoiceNumber.Contains(search) ||
                                         (i.Customer != null && i.Customer.Name.Contains(search)));
+            }
+
+            if (status == "paid")
+            {
+                query = query.Where(i => i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "unpaid")
+            {
+                query = query.Where(i => !i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "voided")
+            {
+                query = query.Where(i => i.IsVoided);
             }
 
             int totalCount = await query.CountAsync();
@@ -577,6 +609,32 @@ namespace Qaydak.Controllers
             string whatsappUrl = $"https://wa.me/{phone}?text={Uri.EscapeDataString(message)}";
 
             return Content(whatsappUrl);
+        }
+
+        public async Task<IActionResult> EmailLink(int id)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null || invoice.Customer == null)
+            {
+                return Content("لم يتم العثور على الفاتورة أو العميل");
+            }
+
+            if (string.IsNullOrWhiteSpace(invoice.Customer.Email))
+            {
+                return Content("لا يوجد بريد إلكتروني مسجل لهذا العميل");
+            }
+
+            string pdfUrl = Url.Action("DownloadPdf", "Invoice", new { id }, Request.Scheme)!;
+            string subject = $"فاتورة رقم {invoice.InvoiceNumber}";
+            string body = $"مرحبًا {invoice.Customer.Name}،\n\nفاتورتك رقم {invoice.InvoiceNumber} بإجمالي {invoice.GetTotal():F2} ريال.\nيمكنك عرضها من الرابط التالي:\n{pdfUrl}\n\nشكرًا لتعاملكم معنا.";
+
+            string mailtoUrl = $"mailto:{invoice.Customer.Email}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
+
+            return Content(mailtoUrl);
         }
     }
 }

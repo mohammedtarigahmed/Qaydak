@@ -1,0 +1,59 @@
+@model List<Qaydak.Models.Invoice>
+
+@{
+    ViewData["Title"] = "كشف حساب";
+    var customer = ViewBag.Customer as Qaydak.Models.Customer;
+}
+
+<h2>كشف حساب: @customer?.Name</h2>
+
+<a href="/Customer" class="btn btn-outline-secondary mb-3">← رجوع لقائمة العملاء</a>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">إجمالي الفواتير</div>
+            <div class="fs-4 fw-bold">@(((decimal)ViewBag.TotalInvoiced).ToString("F2"))</div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">المدفوع</div>
+            <div class="fs-4 fw-bold text-success">@(((decimal)ViewBag.TotalPaid).ToString("F2"))</div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">المستحق</div>
+            <div class="fs-4 fw-bold text-danger">@(((decimal)ViewBag.TotalDue).ToString("F2"))</div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>التاريخ</th>
+            <th>الإجمالي</th>
+            <th>المدفوع</th>
+            <th>المتبقي</th>
+            <th>الحالة</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                <td>@invoice.GetTotal().ToString("F2")</td>
+                <td>@invoice.PaidAmount.ToString("F2")</td>
+                <td>@((invoice.GetTotal() - invoice.PaidAmount).ToString("F2"))</td>
+                <td>@(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")</td>
+                <td><a href="/Invoice/Details/@invoice.Id">تفاصيل</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

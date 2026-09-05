@@ -1,0 +1,30 @@
+@model Qaydak.Models.Product
+
+@{
+    ViewData["Title"] = "إضافة منتج/خدمة";
+}
+
+<h2>إضافة منتج/خدمة</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label>الاسم</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>السعر الافتراضي</label>
+        <input asp-for="DefaultPrice" class="form-control" />
+        <span asp-validation-for="DefaultPrice" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">حفظ</button>
+    <a href="/Product" class="btn btn-secondary">إلغاء</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

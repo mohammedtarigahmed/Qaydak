@@ -5,6 +5,7 @@
         <tr>
             <th>الاسم</th>
             <th>رقم الهاتف</th>
+            <th>البريد الإلكتروني</th>
             <th>العنوان</th>
             <th></th>
         </tr>
@@ -15,9 +16,11 @@
             <tr>
                 <td>@customer.Name</td>
                 <td>@customer.PhoneNumber</td>
+                <td>@customer.Email</td>
                 <td>@customer.Address</td>
                 <td>
                     <a href="/Customer/Edit/@customer.Id">تعديل</a> |
+                    <a href="/Customer/Statement/@customer.Id">كشف حساب</a> |
                     <a href="/Customer/Delete/@customer.Id">حذف</a>
                 </td>
             </tr>

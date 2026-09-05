@@ -14,6 +14,10 @@ namespace Qaydak.Models
         [RegularExpression(@"^\d{8,15}$", ErrorMessage = "رقم الهاتف لازم يكون أرقام فقط بصيغة دولية (مثال: 966501234567)")]
         public string? PhoneNumber { get; set; }
 
+        [EmailAddress(ErrorMessage = "بريد إلكتروني غير صحيح")]
+        [StringLength(150)]
+        public string? Email { get; set; }
+
         [StringLength(200)]
         public string? Address { get; set; }
 

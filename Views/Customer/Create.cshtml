@@ -22,6 +22,12 @@
     </div>
 
     <div class="mb-3">
+        <label>البريد الإلكتروني</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
         <label>العنوان</label>
         <input asp-for="Address" class="form-control" />
         <span asp-validation-for="Address" class="text-danger"></span>

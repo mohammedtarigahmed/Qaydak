@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "لوحة التحكم";
+}
+
+<h2 class="mb-4">لوحة التحكم</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">إجمالي المبيعات</div>
+            <div class="fs-4 fw-bold">@(((decimal)ViewBag.TotalSales).ToString("F2"))</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">المقبوض</div>
+            <div class="fs-4 fw-bold text-success">@(((decimal)ViewBag.TotalPaid).ToString("F2"))</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">المستحق</div>
+            <div class="fs-4 fw-bold text-danger">@(((decimal)ViewBag.TotalDue).ToString("F2"))</div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">عدد العملاء</div>
+            <div class="fs-4 fw-bold">@ViewBag.CustomerCount</div>
+        </div>
+    </div>
+</div>
+
+<h4>آخر الفواتير</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>رقم الفاتورة</th>
+            <th>العميل</th>
+            <th>التاريخ</th>
+            <th>الإجمالي</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in (ViewBag.RecentInvoices as List<Qaydak.Models.Invoice>) ?? new List<Qaydak.Models.Invoice>())
+        {
+            <tr>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.Customer?.Name</td>
+                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                <td>@invoice.GetTotal().ToString("F2")</td>
+                <td><a href="/Invoice/Details/@invoice.Id">تفاصيل</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

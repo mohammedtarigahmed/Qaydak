@@ -125,6 +125,28 @@ namespace Qaydak.Controllers
             return RedirectToAction("Index");
         }
 
+        public async Task<IActionResult> Statement(int id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var invoices = await _context.Invoices
+                .Where(i => i.CustomerId == id && !i.IsVoided)
+                .Include(i => i.Items)
+                .OrderByDescending(i => i.IssueDate)
+                .ToListAsync();
+
+            ViewBag.Customer = customer;
+            ViewBag.TotalInvoiced = invoices.Sum(i => i.GetTotal());
+            ViewBag.TotalPaid = invoices.Sum(i => i.PaidAmount);
+            ViewBag.TotalDue = invoices.Sum(i => i.GetTotal() - i.PaidAmount);
+
+            return View(invoices);
+        }
+
         public async Task<IActionResult> SearchPartial(string? search, int page = 1)
         {
             int pageSize = 10;
