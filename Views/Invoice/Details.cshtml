@@ -30,6 +30,21 @@
 </div>
 
 <a href="/Invoice/DownloadPdf/@Model.Id" target="_blank" class="btn btn-outline-primary mb-3">عرض / تحميل PDF</a>
+<button type="button" class="btn btn-success mb-3" onclick="openWhatsApp(@Model.Id)">إرسال عبر واتساب</button>
+
+<script>
+    function openWhatsApp(invoiceId) {
+        fetch(`/Invoice/WhatsAppLink/${invoiceId}`)
+            .then(response => response.text())
+            .then(url => {
+                if (url.startsWith('http')) {
+                    window.open(url, '_blank');
+                } else {
+                    alert(url);
+                }
+            });
+    }
+</script>
 
 @if (!Model.IsVoided)
 {

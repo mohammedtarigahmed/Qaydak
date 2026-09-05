@@ -11,7 +11,7 @@ namespace Qaydak.Models
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [Phone(ErrorMessage = "رقم هاتف غير صحيح")]
+        [RegularExpression(@"^\d{8,15}$", ErrorMessage = "رقم الهاتف لازم يكون أرقام فقط بصيغة دولية (مثال: 966501234567)")]
         public string? PhoneNumber { get; set; }
 
         [StringLength(200)]

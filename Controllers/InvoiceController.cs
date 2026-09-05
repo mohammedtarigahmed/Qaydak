@@ -542,5 +542,41 @@ namespace Qaydak.Controllers
 
             return PartialView("_InvoiceTablePartial", invoices);
         }
+
+        private string FormatPhoneForWhatsApp(string? phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return string.Empty;
+            }
+
+            return new string(phone.Where(char.IsDigit).ToArray());
+        }
+
+        public async Task<IActionResult> WhatsAppLink(int id)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null || invoice.Customer == null)
+            {
+                return Content("لم يتم العثور على الفاتورة أو العميل");
+            }
+
+            string phone = FormatPhoneForWhatsApp(invoice.Customer.PhoneNumber);
+            if (string.IsNullOrEmpty(phone))
+            {
+                return Content("لا يوجد رقم هاتف مسجل لهذا العميل");
+            }
+
+            string pdfUrl = Url.Action("DownloadPdf", "Invoice", new { id }, Request.Scheme)!;
+            string message = $"مرحبًا {invoice.Customer.Name}، فاتورتك رقم {invoice.InvoiceNumber} بإجمالي {invoice.GetTotal():F2} ريال. يمكنك عرضها من الرابط: {pdfUrl}";
+
+            string whatsappUrl = $"https://wa.me/{phone}?text={Uri.EscapeDataString(message)}";
+
+            return Content(whatsappUrl);
+        }
     }
 }
