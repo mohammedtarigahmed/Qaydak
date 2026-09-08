@@ -29,6 +29,12 @@
         <span asp-validation-for="VatRate" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label>الخصم (مبلغ ثابت)</label>
+        <input asp-for="DiscountAmount" class="form-control" />
+        <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-success">حفظ التعديلات</button>
     <a href="/Invoice/Details/@Model.Id" class="btn btn-secondary">إلغاء</a>
 </form>

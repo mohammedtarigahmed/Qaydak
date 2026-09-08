@@ -89,6 +89,7 @@ namespace Qaydak.Controllers
                 InvoiceNumber = invoiceNumber,
                 CustomerId = vm.CustomerId,
                 VatRate = vm.VatRate,
+                DiscountAmount = vm.DiscountAmount,
                 IssueDate = DateTime.Now,
                 Items = (vm.Items ?? new List<InvoiceItemViewModel>()).Select(i => new InvoiceItem
                 {
@@ -127,6 +128,7 @@ namespace Qaydak.Controllers
                 Id = invoice.Id,
                 CustomerId = invoice.CustomerId,
                 VatRate = invoice.VatRate,
+                DiscountAmount = invoice.DiscountAmount,
                 RowVersion = invoice.RowVersion
             };
 
@@ -161,6 +163,7 @@ namespace Qaydak.Controllers
 
             invoice.CustomerId = vm.CustomerId;
             invoice.VatRate = vm.VatRate;
+            invoice.DiscountAmount = vm.DiscountAmount;
             _context.Entry(invoice).Property("RowVersion").OriginalValue = vm.RowVersion;
 
             try
@@ -466,6 +469,15 @@ namespace Qaydak.Controllers
                                 row.ConstantItem(80).AlignLeft().Text(subtotal.ToString("F2"));
                             });
 
+                            if (invoice.DiscountAmount > 0)
+                            {
+                                totalsColumn.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("الخصم:");
+                                    row.ConstantItem(80).AlignLeft().Text($"-{invoice.DiscountAmount:F2}");
+                                });
+                            }
+
                             totalsColumn.Item().Row(row =>
                             {
                                 row.RelativeItem().Text($"الضريبة ({invoice.VatRate}%):");
@@ -635,6 +647,96 @@ namespace Qaydak.Controllers
             string mailtoUrl = $"mailto:{invoice.Customer.Email}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
 
             return Content(mailtoUrl);
+        }
+
+        public async Task<IActionResult> Duplicate(int id)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            var vm = new InvoiceWithItemsViewModel
+            {
+                CustomerId = invoice.CustomerId,
+                VatRate = invoice.VatRate,
+                DiscountAmount = invoice.DiscountAmount,
+                Items = invoice.Items.Select(i => new InvoiceItemViewModel
+                {
+                    Description = i.Description,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice
+                }).ToList()
+            };
+
+            ViewBag.Customers = await _context.Customers.ToListAsync();
+            ViewBag.Products = await _context.Products.OrderBy(p => p.Name).ToListAsync();
+
+            return View("Create", vm);
+        }
+
+        public async Task<IActionResult> ExportExcel(string? search, string? status)
+        {
+            var query = _context.Invoices.Include(i => i.Customer).Include(i => i.Items).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(i => i.InvoiceNumber.Contains(search) ||
+                                        (i.Customer != null && i.Customer.Name.Contains(search)));
+            }
+
+            if (status == "paid")
+            {
+                query = query.Where(i => i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "unpaid")
+            {
+                query = query.Where(i => !i.IsPaid && !i.IsVoided);
+            }
+            else if (status == "voided")
+            {
+                query = query.Where(i => i.IsVoided);
+            }
+
+            var invoices = await query.OrderByDescending(i => i.IssueDate).ToListAsync();
+
+            using var workbook = new ClosedXML.Excel.XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("الفواتير");
+
+            worksheet.Cell(1, 1).Value = "رقم الفاتورة";
+            worksheet.Cell(1, 2).Value = "العميل";
+            worksheet.Cell(1, 3).Value = "التاريخ";
+            worksheet.Cell(1, 4).Value = "الإجمالي";
+            worksheet.Cell(1, 5).Value = "المدفوع";
+            worksheet.Cell(1, 6).Value = "المتبقي";
+            worksheet.Cell(1, 7).Value = "الحالة";
+
+            worksheet.Row(1).Style.Font.Bold = true;
+
+            int row = 2;
+            foreach (var invoice in invoices)
+            {
+                worksheet.Cell(row, 1).Value = invoice.InvoiceNumber;
+                worksheet.Cell(row, 2).Value = invoice.Customer?.Name ?? "";
+                worksheet.Cell(row, 3).Value = invoice.IssueDate.ToString("yyyy-MM-dd");
+                worksheet.Cell(row, 4).Value = invoice.GetTotal();
+                worksheet.Cell(row, 5).Value = invoice.PaidAmount;
+                worksheet.Cell(row, 6).Value = invoice.GetTotal() - invoice.PaidAmount;
+                worksheet.Cell(row, 7).Value = invoice.IsVoided ? "ملغاة" : (invoice.IsPaid ? "مدفوعة" : "غير مدفوعة");
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            var content = stream.ToArray();
+
+            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Invoices.xlsx");
         }
     }
 }

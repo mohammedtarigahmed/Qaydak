@@ -10,6 +10,9 @@ namespace Qaydak.Models
         [Range(0, 100, ErrorMessage = "نسبة الضريبة لازم تكون بين 0 و100")]
         public decimal VatRate { get; set; } = 15;
 
+        [Range(0, double.MaxValue, ErrorMessage = "الخصم لازم يكون صفر أو أكتر")]
+        public decimal DiscountAmount { get; set; } = 0;
+
         public List<InvoiceItemViewModel> Items { get; set; } = new();
     }
 

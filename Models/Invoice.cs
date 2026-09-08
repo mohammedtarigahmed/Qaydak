@@ -22,6 +22,10 @@ namespace Qaydak.Models
         public decimal VatRate { get; set; } = 15;
 
         [Column(TypeName = "decimal(18,2)")]
+        [Range(0, double.MaxValue, ErrorMessage = "الخصم لازم يكون صفر أو أكتر")]
+        public decimal DiscountAmount { get; set; } = 0;
+
+        [Column(TypeName = "decimal(18,2)")]
         [Range(0, double.MaxValue, ErrorMessage = "المبلغ المدفوع لازم يكون صفر أو أكتر")]
         public decimal PaidAmount { get; set; } = 0;
 
@@ -34,7 +38,14 @@ namespace Qaydak.Models
         public List<InvoiceItem> Items { get; set; } = new();
 
         public decimal GetSubtotal() => Items.Sum(i => i.Quantity * i.UnitPrice);
-        public decimal GetVatAmount() => GetSubtotal() * (VatRate / 100);
-        public decimal GetTotal() => GetSubtotal() + GetVatAmount();
+
+        public decimal GetDiscountedSubtotal()
+        {
+            var discounted = GetSubtotal() - DiscountAmount;
+            return discounted < 0 ? 0 : discounted;
+        }
+
+        public decimal GetVatAmount() => GetDiscountedSubtotal() * (VatRate / 100);
+        public decimal GetTotal() => GetDiscountedSubtotal() + GetVatAmount();
     }
 }

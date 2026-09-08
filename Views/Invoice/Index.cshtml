@@ -16,6 +16,7 @@
         <option value="unpaid">غير مدفوعة</option>
         <option value="voided">ملغاة</option>
     </select>
+    <a id="exportLink" href="/Invoice/ExportExcel" class="btn btn-outline-success">تصدير Excel</a>
 </div>
 
 <div id="resultsContainer">
@@ -27,7 +28,12 @@
         const searchBox = document.getElementById('searchBox');
         const statusFilter = document.getElementById('statusFilter');
         const resultsContainer = document.getElementById('resultsContainer');
+        const exportLink = document.getElementById('exportLink');
         let debounceTimer;
+
+        function updateExportLink() {
+            exportLink.href = `/Invoice/ExportExcel?search=${encodeURIComponent(searchBox.value)}&status=${encodeURIComponent(statusFilter.value)}`;
+        }
 
         function loadResults(search, status, page = 1) {
             fetch(`/Invoice/SearchPartial?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}&page=${page}`)
@@ -52,13 +58,16 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 loadResults(searchBox.value, statusFilter.value);
+                updateExportLink();
             }, 300);
         });
 
         statusFilter.addEventListener('change', function () {
             loadResults(searchBox.value, statusFilter.value);
+            updateExportLink();
         });
 
         attachPageLinks();
+        updateExportLink();
     </script>
 }

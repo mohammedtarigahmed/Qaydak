@@ -37,6 +37,8 @@
 
     <button type="button" class="btn btn-outline-secondary" onclick="openEmail(@Model.Id)">إرسال بالإيميل</button>
 
+    <a href="/Invoice/Duplicate/@Model.Id" class="btn btn-outline-info">نسخ الفاتورة</a>
+
     @if (!Model.IsVoided)
     {
         <a href="/Invoice/Edit/@Model.Id" class="btn btn-outline-primary">تعديل بيانات الفاتورة</a>
@@ -103,6 +105,11 @@
 </table>
 
 <p><strong>المجموع الفرعي:</strong> @subtotal.ToString("F2")</p>
+@if (Model.DiscountAmount > 0)
+{
+    <p><strong>الخصم:</strong> -@Model.DiscountAmount.ToString("F2")</p>
+    <p><strong>بعد الخصم:</strong> @Model.GetDiscountedSubtotal().ToString("F2")</p>
+}
 <p><strong>الضريبة (@Model.VatRate%):</strong> @vatAmount.ToString("F2")</p>
 <p><strong>الإجمالي:</strong> @total.ToString("F2")</p>
 
