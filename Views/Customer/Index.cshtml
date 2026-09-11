@@ -4,17 +4,20 @@
     ViewData["Title"] = "العملاء";
 }
 
-<h2>قائمة العملاء</h2>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">العملاء</h2>
+    <a href="/Customer/Create" class="btn btn-primary">+ إضافة عميل جديد</a>
+</div>
 
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<a href="/Customer/Create" class="btn btn-primary mb-3">+ إضافة عميل جديد</a>
-
-<div class="mb-3">
-    <input type="text" id="searchBox" class="form-control" placeholder="بحث بالاسم أو الهاتف" style="max-width: 300px;" value="@ViewBag.Search" />
+<div class="card mb-3">
+    <div class="card-body">
+        <input type="text" id="searchBox" class="form-control" placeholder="بحث بالاسم أو الهاتف" style="max-width: 300px;" value="@ViewBag.Search" />
+    </div>
 </div>
 
 <div id="resultsContainer">

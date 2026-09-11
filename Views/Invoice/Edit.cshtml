@@ -5,44 +5,50 @@
     var customers = ViewBag.Customers as List<Qaydak.Models.Customer>;
 }
 
-<h2>تعديل الفاتورة</h2>
+<h2 class="mb-3">تعديل الفاتورة</h2>
 
-<form asp-action="Edit" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="RowVersion" />
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="RowVersion" />
 
-    <div class="mb-3">
-        <label>العميل</label>
-        <select asp-for="CustomerId" class="form-control">
-            @foreach (var c in customers!)
-            {
-                <option value="@c.Id">@c.Name</option>
-            }
-        </select>
-        <span asp-validation-for="CustomerId" class="text-danger"></span>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>العميل</label>
+                    <select asp-for="CustomerId" class="form-control">
+                        @foreach (var c in customers!)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>نسبة الضريبة %</label>
+                    <input asp-for="VatRate" class="form-control" />
+                    <span asp-validation-for="VatRate" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label>الخصم</label>
+                    <input asp-for="DiscountAmount" class="form-control" />
+                    <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label>تاريخ الاستحقاق</label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+            <a href="/Invoice/Details/@Model.Id" class="btn btn-outline-secondary">إلغاء</a>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label>نسبة الضريبة %</label>
-        <input asp-for="VatRate" class="form-control" />
-        <span asp-validation-for="VatRate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>الخصم (مبلغ ثابت)</label>
-        <input asp-for="DiscountAmount" class="form-control" />
-        <span asp-validation-for="DiscountAmount" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>تاريخ الاستحقاق (اختياري)</label>
-        <input asp-for="DueDate" type="date" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-success">حفظ التعديلات</button>
-    <a href="/Invoice/Details/@Model.Id" class="btn btn-secondary">إلغاء</a>
-</form>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

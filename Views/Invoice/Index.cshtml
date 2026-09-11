@@ -4,19 +4,24 @@
     ViewData["Title"] = "الفواتير";
 }
 
-<h2>قائمة الفواتير</h2>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">الفواتير</h2>
+    <a href="/Invoice/Create" class="btn btn-primary">+ فاتورة جديدة</a>
+</div>
 
-<a href="/Invoice/Create" class="btn btn-primary mb-3">+ فاتورة جديدة</a>
-
-<div class="mb-3 d-flex gap-2">
-    <input type="text" id="searchBox" class="form-control" placeholder="بحث برقم الفاتورة أو اسم العميل" style="max-width: 300px;" value="@ViewBag.Search" />
-    <select id="statusFilter" class="form-control" style="max-width: 200px;">
-        <option value="">كل الحالات</option>
-        <option value="paid">مدفوعة</option>
-        <option value="unpaid">غير مدفوعة</option>
-        <option value="voided">ملغاة</option>
-    </select>
-    <a id="exportLink" href="/Invoice/ExportExcel" class="btn btn-outline-success">تصدير Excel</a>
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex gap-2 flex-wrap">
+            <input type="text" id="searchBox" class="form-control" placeholder="بحث برقم الفاتورة أو اسم العميل" style="max-width: 300px;" value="@ViewBag.Search" />
+            <select id="statusFilter" class="form-control" style="max-width: 200px;">
+                <option value="">كل الحالات</option>
+                <option value="paid">مدفوعة</option>
+                <option value="unpaid">غير مدفوعة</option>
+                <option value="voided">ملغاة</option>
+            </select>
+            <a id="exportLink" href="/Invoice/ExportExcel" class="btn btn-outline-success">تصدير Excel</a>
+        </div>
+    </div>
 </div>
 
 <div id="resultsContainer">

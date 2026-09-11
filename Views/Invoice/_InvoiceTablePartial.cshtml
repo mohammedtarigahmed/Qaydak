@@ -1,47 +1,55 @@
 @model List<Qaydak.Models.Invoice>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>رقم الفاتورة</th>
-            <th>العميل</th>
-            <th>التاريخ</th>
-            <th>الحالة</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.InvoiceNumber</td>
-                <td>@invoice.Customer?.Name</td>
-                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                <td>
-                    @if (invoice.IsVoided)
-                    {
-                        <text>ملغاة</text>
-                    }
-                    else if (invoice.IsOverdue())
-                    {
-                        <span class="badge bg-danger">متأخرة</span>
-                    }
-                    else
-                    {
-                        @(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")
-                    }
-                </td>
-                <td>
-                    <a href="/Invoice/Details/@invoice.Id">تفاصيل</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>العميل</th>
+                    <th>التاريخ</th>
+                    <th>الإجمالي</th>
+                    <th>الحالة</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td>@invoice.InvoiceNumber</td>
+                        <td>@invoice.Customer?.Name</td>
+                        <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@invoice.GetTotal().ToString("F2")</td>
+                        <td>
+                            @if (invoice.IsVoided)
+                            {
+                                <span class="badge bg-secondary">ملغاة</span>
+                            }
+                            else if (invoice.IsOverdue())
+                            {
+                                <span class="badge bg-danger">متأخرة</span>
+                            }
+                            else if (invoice.IsPaid)
+                            {
+                                <span class="badge bg-success">مدفوعة</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">غير مدفوعة</span>
+                            }
+                        </td>
+                        <td><a href="/Invoice/Details/@invoice.Id" class="btn btn-sm btn-outline-primary">تفاصيل</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @if (ViewBag.TotalPages > 1)
 {
-    <nav>
+    <nav class="mt-3">
         <ul class="pagination">
             @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
