@@ -5,9 +5,9 @@
     var customer = ViewBag.Customer as Qaydak.Models.Customer;
 }
 
-<h2>كشف حساب: @customer?.Name</h2>
+<a href="/Customer" class="btn btn-outline-secondary btn-sm mb-3">← رجوع لقائمة العملاء</a>
 
-<a href="/Customer" class="btn btn-outline-secondary mb-3">← رجوع لقائمة العملاء</a>
+<h2 class="mb-3">كشف حساب: @customer?.Name</h2>
 
 <div class="row mb-4">
     <div class="col-md-4 mb-3">
@@ -30,30 +30,43 @@
     </div>
 </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>رقم الفاتورة</th>
-            <th>التاريخ</th>
-            <th>الإجمالي</th>
-            <th>المدفوع</th>
-            <th>المتبقي</th>
-            <th>الحالة</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.InvoiceNumber</td>
-                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                <td>@invoice.GetTotal().ToString("F2")</td>
-                <td>@invoice.PaidAmount.ToString("F2")</td>
-                <td>@((invoice.GetTotal() - invoice.PaidAmount).ToString("F2"))</td>
-                <td>@(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")</td>
-                <td><a href="/Invoice/Details/@invoice.Id">تفاصيل</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>التاريخ</th>
+                    <th>الإجمالي</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th>الحالة</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td>@invoice.InvoiceNumber</td>
+                        <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@invoice.GetTotal().ToString("F2")</td>
+                        <td>@invoice.PaidAmount.ToString("F2")</td>
+                        <td>@((invoice.GetTotal() - invoice.PaidAmount).ToString("F2"))</td>
+                        <td>
+                            @if (invoice.IsPaid)
+                            {
+                                <span class="badge bg-success">مدفوعة</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">غير مدفوعة</span>
+                            }
+                        </td>
+                        <td><a href="/Invoice/Details/@invoice.Id" class="btn btn-sm btn-outline-primary">تفاصيل</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

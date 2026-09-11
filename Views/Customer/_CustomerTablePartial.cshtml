@@ -1,36 +1,43 @@
 @model List<Qaydak.Models.Customer>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-bordered mb-0">
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>رقم الهاتف</th>
-                    <th>البريد الإلكتروني</th>
-                    <th>العنوان</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var customer in Model)
-                {
+@if (!Model.Any())
+{
+    <div class="alert alert-info">لا يوجد عملاء حاليًا</div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
                     <tr>
-                        <td>@customer.Name</td>
-                        <td>@customer.PhoneNumber</td>
-                        <td>@customer.Email</td>
-                        <td>@customer.Address</td>
-                        <td class="d-flex gap-2">
-                            <a href="/Customer/Edit/@customer.Id" class="btn btn-sm btn-outline-primary">تعديل</a>
-                            <a href="/Customer/Statement/@customer.Id" class="btn btn-sm btn-outline-info">كشف حساب</a>
-                            <a href="/Customer/Delete/@customer.Id" class="btn btn-sm btn-outline-danger">حذف</a>
-                        </td>
+                        <th>الاسم</th>
+                        <th>رقم الهاتف</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>العنوان</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model)
+                    {
+                        <tr>
+                            <td>@customer.Name</td>
+                            <td>@customer.PhoneNumber</td>
+                            <td>@customer.Email</td>
+                            <td>@customer.Address</td>
+                            <td class="d-flex gap-2">
+                                <a href="/Customer/Edit/@customer.Id" class="btn btn-sm btn-outline-primary">تعديل</a>
+                                <a href="/Customer/Statement/@customer.Id" class="btn btn-sm btn-outline-info">كشف حساب</a>
+                                <a href="/Customer/Delete/@customer.Id" class="btn btn-sm btn-outline-danger">حذف</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+}
 
 @if (ViewBag.TotalPages > 1)
 {

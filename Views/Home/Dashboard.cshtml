@@ -2,7 +2,7 @@
     ViewData["Title"] = "لوحة التحكم";
 }
 
-<div class="mb-4 d-flex align-items-center gap-2">
+<div class="mb-4 d-flex align-items-center gap-2 flex-wrap">
     <h2 class="mb-0">لوحة التحكم</h2>
     <select id="periodFilter" class="form-control" style="max-width: 200px;" onchange="window.location.href='/Home/Dashboard?period=' + this.value">
         <option value="today" selected="@(ViewBag.SelectedPeriod == "today")">اليوم</option>
@@ -14,59 +14,63 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 col-sm-6 mb-3">
         <div class="card p-3 text-center">
             <div class="text-muted">إجمالي المبيعات</div>
             <div class="fs-4 fw-bold">@(((decimal)ViewBag.TotalSales).ToString("F2"))</div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 col-sm-6 mb-3">
         <div class="card p-3 text-center">
             <div class="text-muted">المقبوض</div>
             <div class="fs-4 fw-bold text-success">@(((decimal)ViewBag.TotalPaid).ToString("F2"))</div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 col-sm-6 mb-3">
         <div class="card p-3 text-center">
             <div class="text-muted">المستحق</div>
             <div class="fs-4 fw-bold text-danger">@(((decimal)ViewBag.TotalDue).ToString("F2"))</div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="card p-3 text-center">
-            <div class="text-muted">عدد العملاء</div>
-            <div class="fs-4 fw-bold">@ViewBag.CustomerCount</div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
+    <div class="col-md-3 col-sm-6 mb-3">
         <div class="card p-3 text-center">
             <div class="text-muted">فواتير متأخرة</div>
             <div class="fs-4 fw-bold text-danger">@ViewBag.OverdueCount</div>
         </div>
     </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card p-3 text-center">
+            <div class="text-muted">عدد العملاء</div>
+            <div class="fs-4 fw-bold">@ViewBag.CustomerCount</div>
+        </div>
+    </div>
 </div>
 
-<h4>آخر الفواتير</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>رقم الفاتورة</th>
-            <th>العميل</th>
-            <th>التاريخ</th>
-            <th>الإجمالي</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var invoice in (ViewBag.RecentInvoices as List<Qaydak.Models.Invoice>) ?? new List<Qaydak.Models.Invoice>())
-        {
-            <tr>
-                <td>@invoice.InvoiceNumber</td>
-                <td>@invoice.Customer?.Name</td>
-                <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                <td>@invoice.GetTotal().ToString("F2")</td>
-                <td><a href="/Invoice/Details/@invoice.Id">تفاصيل</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<h4 class="mb-3">آخر الفواتير</h4>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>العميل</th>
+                    <th>التاريخ</th>
+                    <th>الإجمالي</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in (ViewBag.RecentInvoices as List<Qaydak.Models.Invoice>) ?? new List<Qaydak.Models.Invoice>())
+                {
+                    <tr>
+                        <td>@invoice.InvoiceNumber</td>
+                        <td>@invoice.Customer?.Name</td>
+                        <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@invoice.GetTotal().ToString("F2")</td>
+                        <td><a href="/Invoice/Details/@invoice.Id" class="btn btn-sm btn-outline-primary">تفاصيل</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

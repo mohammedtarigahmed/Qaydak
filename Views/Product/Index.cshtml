@@ -9,32 +9,44 @@
     <a href="/Product/Create" class="btn btn-primary">+ إضافة منتج/خدمة</a>
 </div>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-bordered mb-0">
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>السعر الافتراضي</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var product in Model)
-                {
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">لا توجد منتجات أو خدمات مسجلة حاليًا</div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
                     <tr>
-                        <td>@product.Name</td>
-                        <td>@product.DefaultPrice.ToString("F2")</td>
-                        <td class="d-flex gap-2">
-                            <a href="/Product/Edit/@product.Id" class="btn btn-sm btn-outline-primary">تعديل</a>
-                            <form asp-action="Delete" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@product.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('متأكد عايز تحذف؟')">حذف</button>
-                            </form>
-                        </td>
+                        <th>الاسم</th>
+                        <th>السعر الافتراضي</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td>@product.DefaultPrice.ToString("F2")</td>
+                            <td class="d-flex gap-2">
+                                <a href="/Product/Edit/@product.Id" class="btn btn-sm btn-outline-primary">تعديل</a>
+                                <form asp-action="Delete" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@product.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('متأكد عايز تحذف؟')">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+}

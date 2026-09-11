@@ -77,10 +77,10 @@
                             <input name="Items[@i].Description" class="form-control item-description" placeholder="الوصف" value="@Model.Items[i].Description" />
                         </div>
                         <div class="col-md-2">
-                            <input name="Items[@i].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية" value="@Model.Items[i].Quantity" />
+                            <input name="Items[@i].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية" value="@(Model.Items[i].Quantity == 0 ? "" : Model.Items[i].Quantity.ToString())" />
                         </div>
                         <div class="col-md-2">
-                            <input name="Items[@i].UnitPrice" type="number" step="0.01" class="form-control item-price" placeholder="السعر" value="@Model.Items[i].UnitPrice" />
+                            <input name="Items[@i].UnitPrice" type="number" step="0.01" class="form-control item-price" placeholder="السعر" value="@(Model.Items[i].UnitPrice == 0 ? "" : Model.Items[i].UnitPrice.ToString())" />
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-outline-danger btn-sm remove-item">×</button>
@@ -135,7 +135,7 @@
                     <input name="Items[${itemIndex}].Description" class="form-control item-description" placeholder="الوصف" />
                 </div>
                 <div class="col-md-2">
-                    <input name="Items[${itemIndex}].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية" value="1" />
+                    <input name="Items[${itemIndex}].Quantity" type="number" step="0.01" class="form-control" placeholder="الكمية">
                 </div>
                 <div class="col-md-2">
                     <input name="Items[${itemIndex}].UnitPrice" type="number" step="0.01" class="form-control item-price" placeholder="السعر" />

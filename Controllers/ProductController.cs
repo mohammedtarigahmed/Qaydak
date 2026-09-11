@@ -37,6 +37,7 @@ namespace Qaydak.Controllers
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "تم إضافة المنتج/الخدمة بنجاح";
             return RedirectToAction("Index");
         }
 
@@ -65,6 +66,7 @@ namespace Qaydak.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "تم تحديث المنتج/الخدمة بنجاح";
             return RedirectToAction("Index");
         }
 

@@ -56,6 +56,7 @@ namespace Qaydak.Controllers
 
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "تم إضافة العميل بنجاح";
             return RedirectToAction("Index");
         }
 
@@ -93,6 +94,7 @@ namespace Qaydak.Controllers
                 return View(customer);
             }
 
+            TempData["Success"] = "تم إضافة العميل بنجاح";
             return RedirectToAction("Index");
         }
 

@@ -1,51 +1,58 @@
 @model List<Qaydak.Models.Invoice>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-bordered mb-0">
-            <thead>
-                <tr>
-                    <th>رقم الفاتورة</th>
-                    <th>العميل</th>
-                    <th>التاريخ</th>
-                    <th>الإجمالي</th>
-                    <th>الحالة</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var invoice in Model)
-                {
+@if (!Model.Any())
+{
+    <div class="alert alert-info">لا توجد فواتير حاليًا</div>
+}
+else
+{
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
                     <tr>
-                        <td>@invoice.InvoiceNumber</td>
-                        <td>@invoice.Customer?.Name</td>
-                        <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                        <td>@invoice.GetTotal().ToString("F2")</td>
-                        <td>
-                            @if (invoice.IsVoided)
-                            {
-                                <span class="badge bg-secondary">ملغاة</span>
-                            }
-                            else if (invoice.IsOverdue())
-                            {
-                                <span class="badge bg-danger">متأخرة</span>
-                            }
-                            else if (invoice.IsPaid)
-                            {
-                                <span class="badge bg-success">مدفوعة</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">غير مدفوعة</span>
-                            }
-                        </td>
-                        <td><a href="/Invoice/Details/@invoice.Id" class="btn btn-sm btn-outline-primary">تفاصيل</a></td>
+                        <th>رقم الفاتورة</th>
+                        <th>العميل</th>
+                        <th>التاريخ</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var invoice in Model)
+                    {
+                        <tr>
+                            <td>@invoice.InvoiceNumber</td>
+                            <td>@invoice.Customer?.Name</td>
+                            <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
+                            <td>@invoice.GetTotal().ToString("F2")</td>
+                            <td>
+                                @if (invoice.IsVoided)
+                                {
+                                    <span class="badge bg-secondary">ملغاة</span>
+                                }
+                                else if (invoice.IsOverdue())
+                                {
+                                    <span class="badge bg-danger">متأخرة</span>
+                                }
+                                else if (invoice.IsPaid)
+                                {
+                                    <span class="badge bg-success">مدفوعة</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">غير مدفوعة</span>
+                                }
+                            </td>
+                            <td><a href="/Invoice/Details/@invoice.Id" class="btn btn-sm btn-outline-primary">تفاصيل</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+}
 
 @if (ViewBag.TotalPages > 1)
 {

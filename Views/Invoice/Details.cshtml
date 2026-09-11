@@ -11,6 +11,11 @@
 
 <a href="/Invoice" class="btn btn-outline-secondary btn-sm mb-3">← رجوع لقائمة الفواتير</a>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">@TempData["Error"]</div>

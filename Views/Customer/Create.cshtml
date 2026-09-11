@@ -4,38 +4,42 @@
     ViewData["Title"] = "إضافة عميل جديد";
 }
 
-<h2>إضافة عميل جديد</h2>
+<h2 class="mb-3">إضافة عميل جديد</h2>
 
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="mb-3">
-        <label>الاسم</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="mb-3">
+                <label>الاسم</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label>رقم الهاتف (بصيغة دولية، مثال: 966501234567)</label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="مثال: 966501234567" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label>البريد الإلكتروني</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label>العنوان</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">حفظ</button>
+            <a href="/Customer" class="btn btn-outline-secondary">إلغاء</a>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label>رقم الهاتف (بصيغة دولية، مثال: 966501234567)</label>
-        <input asp-for="PhoneNumber" class="form-control" placeholder="مثال: 966501234567" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>البريد الإلكتروني</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>العنوان</label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">حفظ</button>
-    <a href="/Customer" class="btn btn-secondary">إلغاء</a>
-</form>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -25,7 +25,7 @@ namespace Qaydak.Models
         public string Description { get; set; } = string.Empty;
 
         [Range(0.01, double.MaxValue, ErrorMessage = "الكمية لازم تكون أكبر من صفر")]
-        public decimal Quantity { get; set; } = 1;
+        public decimal Quantity { get; set; } = 0;
 
         [Range(0.01, double.MaxValue, ErrorMessage = "السعر لازم يكون أكبر من صفر")]
         public decimal UnitPrice { get; set; }

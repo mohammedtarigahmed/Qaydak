@@ -24,7 +24,7 @@ namespace Qaydak.Controllers
         {
             int pageSize = 10;
 
-            var query = _context.Invoices.Include(i => i.Customer).AsQueryable();
+            var query = _context.Invoices.Include(i => i.Customer).Include(i => i.Items).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -105,6 +105,8 @@ namespace Qaydak.Controllers
 
             _logger.LogInformation("Invoice {InvoiceNumber} created for customer {CustomerId} with {ItemCount} items", invoice.InvoiceNumber, invoice.CustomerId, invoice.Items.Count);
 
+            TempData["Success"] = "تم إنشاء الفاتورة بنجاح";
+
             return RedirectToAction("Details", new { id = invoice.Id });
         }
 
@@ -182,6 +184,8 @@ namespace Qaydak.Controllers
 
             _logger.LogInformation("Invoice {InvoiceId} header edited", id);
 
+            TempData["Success"] = "تم تحديث بيانات الفاتورة بنجاح";
+            
             return RedirectToAction("Details", new { id });
         }
 
