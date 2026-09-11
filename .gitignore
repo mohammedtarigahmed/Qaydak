@@ -3,3 +3,4 @@ obj/
 *.db
 appsettings.Development.json
 .vs/
+appsettings.Production.json
