@@ -24,15 +24,30 @@ namespace Qaydak.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(string period = "month")
         {
-            var invoices = await _context.Invoices.Where(i => !i.IsVoided).Include(i => i.Items).Include(i => i.Customer).ToListAsync();
+            DateTime startDate = period switch
+            {
+                "today" => DateTime.Now.Date,
+                "week" => DateTime.Now.Date.AddDays(-7),
+                "month" => new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                "year" => new DateTime(DateTime.Now.Year, 1, 1),
+                "all" => DateTime.MinValue,
+                _ => new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)
+            };
+
+            var invoices = await _context.Invoices
+                .Where(i => !i.IsVoided && i.IssueDate >= startDate)
+                .Include(i => i.Items)
+                .Include(i => i.Customer)
+                .ToListAsync();
 
             var totalSales = invoices.Sum(i => i.GetTotal());
             var totalPaid = invoices.Sum(i => i.PaidAmount);
             var totalDue = totalSales - totalPaid;
             var invoiceCount = invoices.Count;
             var customerCount = await _context.Customers.CountAsync();
+            var overdueCount = invoices.Count(i => i.IsOverdue());
 
             var recentInvoices = invoices.OrderByDescending(i => i.IssueDate).Take(5).ToList();
 
@@ -41,7 +56,9 @@ namespace Qaydak.Controllers
             ViewBag.TotalDue = totalDue;
             ViewBag.InvoiceCount = invoiceCount;
             ViewBag.CustomerCount = customerCount;
+            ViewBag.OverdueCount = overdueCount;
             ViewBag.RecentInvoices = recentInvoices;
+            ViewBag.SelectedPeriod = period;
 
             return View();
         }

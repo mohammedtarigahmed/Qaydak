@@ -90,6 +90,7 @@ namespace Qaydak.Controllers
                 CustomerId = vm.CustomerId,
                 VatRate = vm.VatRate,
                 DiscountAmount = vm.DiscountAmount,
+                DueDate = vm.DueDate,
                 IssueDate = DateTime.Now,
                 Items = (vm.Items ?? new List<InvoiceItemViewModel>()).Select(i => new InvoiceItem
                 {
@@ -129,6 +130,7 @@ namespace Qaydak.Controllers
                 CustomerId = invoice.CustomerId,
                 VatRate = invoice.VatRate,
                 DiscountAmount = invoice.DiscountAmount,
+                DueDate = invoice.DueDate,
                 RowVersion = invoice.RowVersion
             };
 
@@ -164,6 +166,7 @@ namespace Qaydak.Controllers
             invoice.CustomerId = vm.CustomerId;
             invoice.VatRate = vm.VatRate;
             invoice.DiscountAmount = vm.DiscountAmount;
+            invoice.DueDate = vm.DueDate;
             _context.Entry(invoice).Property("RowVersion").OriginalValue = vm.RowVersion;
 
             try

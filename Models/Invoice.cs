@@ -32,6 +32,8 @@ namespace Qaydak.Models
         public bool IsPaid { get; set; } = false;
         public bool IsVoided { get; set; } = false;
 
+        public DateTime? DueDate { get; set; }
+
         [Timestamp]
         public byte[]? RowVersion { get; set; }
 
@@ -47,5 +49,7 @@ namespace Qaydak.Models
 
         public decimal GetVatAmount() => GetDiscountedSubtotal() * (VatRate / 100);
         public decimal GetTotal() => GetDiscountedSubtotal() + GetVatAmount();
+
+        public bool IsOverdue() => !IsPaid && !IsVoided && DueDate.HasValue && DueDate.Value.Date < DateTime.Now.Date;
     }
 }

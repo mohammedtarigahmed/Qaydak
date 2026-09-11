@@ -35,6 +35,11 @@
         <span asp-validation-for="DiscountAmount" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label>تاريخ الاستحقاق (اختياري)</label>
+        <input asp-for="DueDate" type="date" class="form-control" />
+    </div>
+
     <button type="submit" class="btn btn-success">حفظ التعديلات</button>
     <a href="/Invoice/Details/@Model.Id" class="btn btn-secondary">إلغاء</a>
 </form>

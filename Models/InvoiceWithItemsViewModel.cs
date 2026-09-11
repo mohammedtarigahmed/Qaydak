@@ -13,6 +13,8 @@ namespace Qaydak.Models
         [Range(0, double.MaxValue, ErrorMessage = "الخصم لازم يكون صفر أو أكتر")]
         public decimal DiscountAmount { get; set; } = 0;
 
+        public DateTime? DueDate { get; set; }
+
         public List<InvoiceItemViewModel> Items { get; set; } = new();
     }
 

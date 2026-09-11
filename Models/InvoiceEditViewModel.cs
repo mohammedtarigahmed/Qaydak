@@ -15,6 +15,7 @@ namespace Qaydak.Models
         [Range(0, double.MaxValue, ErrorMessage = "الخصم لازم يكون صفر أو أكتر")]
         public decimal DiscountAmount { get; set; }
 
+        public DateTime? DueDate { get; set; }
         public byte[]? RowVersion { get; set; }
     }
 }

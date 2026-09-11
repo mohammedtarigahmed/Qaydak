@@ -25,6 +25,16 @@
 
 <p>العميل: @Model.Customer?.Name</p>
 <p>التاريخ: @Model.IssueDate.ToString("yyyy-MM-dd")</p>
+@if (Model.DueDate.HasValue)
+{
+    <p>
+        تاريخ الاستحقاق: @Model.DueDate.Value.ToString("yyyy-MM-dd")
+        @if (Model.IsOverdue())
+        {
+            <span class="badge bg-danger">متأخرة</span>
+        }
+    </p>
+}
 
 <div class="mb-3">
     <img src="/Invoice/QrCode/@Model.Id" alt="QR Code" style="width: 150px;" />

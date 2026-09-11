@@ -17,7 +17,20 @@
                 <td>@invoice.InvoiceNumber</td>
                 <td>@invoice.Customer?.Name</td>
                 <td>@invoice.IssueDate.ToString("yyyy-MM-dd")</td>
-                <td>@(invoice.IsVoided ? "ملغاة" : (invoice.IsPaid ? "مدفوعة" : "غير مدفوعة"))</td>
+                <td>
+                    @if (invoice.IsVoided)
+                    {
+                        <text>ملغاة</text>
+                    }
+                    else if (invoice.IsOverdue())
+                    {
+                        <span class="badge bg-danger">متأخرة</span>
+                    }
+                    else
+                    {
+                        @(invoice.IsPaid ? "مدفوعة" : "غير مدفوعة")
+                    }
+                </td>
                 <td>
                     <a href="/Invoice/Details/@invoice.Id">تفاصيل</a>
                 </td>
