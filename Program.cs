@@ -34,6 +34,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+    string adminUsername = config["AdminCredentials:Username"] ?? "admin";
+    string adminPassword = config["AdminCredentials:Password"] ?? "";
+
+    if (!string.IsNullOrEmpty(adminPassword))
+    {
+        var existingAdmin = await userManager.FindByNameAsync(adminUsername);
+        if (existingAdmin == null)
+        {
+            var admin = new IdentityUser { UserName = adminUsername, Email = $"{adminUsername}@qaydak.local", EmailConfirmed = true };
+            await userManager.CreateAsync(admin, adminPassword);
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
